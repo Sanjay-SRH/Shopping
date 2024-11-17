@@ -84,3 +84,51 @@ class Groceries(Product):
             "packaging_type": self.packaging_type
         })
         return details
+
+
+class ModelDataSaver:
+    """Class to save product data into models.txt."""
+    
+    @staticmethod
+    def save_to_file(products, filename="models.txt"):
+        """Save product data to a file in a tabular format."""
+        try:
+            with open(filename, "a") as file:  # Open in append mode ('a')
+                # Write the header for the table only if the file is empty
+                file.seek(0, 2)  # Move to the end of the file
+                if file.tell() == 0:  # Check if the file is empty
+                    file.write(f"{'Category':<15}|{'Product ID':<12}|{'Name':<20}|{'Price':<10}|{'Quantity':<10}|{'Details':<30}\n")
+                    file.write("=" * 80 + "\n")
+
+                # Write each product's details in tabular format
+                for product in products:
+                    details = product.get_details()
+                    if isinstance(product, Electronics):
+                        extra_details = f"Warranty: {details['warranty_period']}M, Brand: {details['brand']}"
+                        category = "Electronics"
+                    elif isinstance(product, Clothing):
+                        extra_details = f"Size: {details['size']}, Color: {details['color']}, Fabric: {details['fabric_type']}"
+                        category = "Clothing"
+                    elif isinstance(product, Groceries):
+                        extra_details = f"Expiry: {details['expiration_date']}, Packaging: {details['packaging_type']}"
+                        category = "Groceries"
+                    else:
+                        extra_details = "N/A"
+                        category = "General"
+
+                    file.write(f"{category:<15}|{details['product_id']:<12}|{details['name']:<20}|${details['price']:<9.2f}|{details['quantity']:<10}|{extra_details:<30}\n")
+
+                # Indicate completion
+                file.write("=" * 80 + "\n")
+            print(f"Product data appended to {filename} in tabular format.")
+        except Exception as e:
+            print(f"An error occurred while saving the product data: {e}")
+
+
+# Example of adding products and saving to models.txt
+electronics = Electronics(name="Smart TV", price=500.00, warranty_period=24, brand="Samsung", quantity=2)
+clothing = Clothing(name="T-Shirt", price=20.00, size="M", color="Red", fabric_type="Cotton", quantity=3)
+groceries = Groceries(name="Milk", price=3.00, expiration_date="2024-11-20", packaging_type="Carton", quantity=5)
+
+# Save the products to models.txt
+ModelDataSaver.save_to_file([electronics, clothing, groceries])
